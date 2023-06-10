@@ -67,10 +67,12 @@ const inputClosePin = document.querySelector(".form__input--pin");
 
 // Coding
 // Display Movements List (Deposits & Withdrawals)
-const displayMovements = (movs) => {
+const displayMovements = (movs, sort = false) => {
   containerMovements.innerHTML = "";
 
-  movs.forEach((mov, i) => {
+  const movements = sort ? movs.slice().sort((a, b) => a - b) : movs;
+
+  movements.forEach((mov, i) => {
     const type = mov < 0 ? "withdrawal" : "deposit";
     const html = `<div class='movements__row'>
         <div class="movements__type movements__type--${type}">${
@@ -177,4 +179,46 @@ btnTransfer.addEventListener("click", (e) => {
 
     inputTransferAmount.value = inputTransferTo.value = " ";
   }
+});
+
+// Loan Feature
+btnLoan.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+
+  if (
+    amount > 0 &&
+    currentAccount.movements.some((mov) => mov >= amount * 0.1)
+  ) {
+    currentAccount.movements.push(amount);
+    updateUI(currentAccount);
+  }
+});
+
+// Close Account
+btnClose.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  if (
+    currentAccount.userName === inputCloseUsername.value &&
+    currentAccount.pin === +inputClosePin.value
+  ) {
+    const index = accounts.findIndex(
+      (acc) => acc.userName === currentAccount.userName
+    );
+
+    // Delete Account
+    accounts.splice(index, 1);
+    // Hide UI
+    containerApp.style.opacity = "0";
+  }
+});
+
+// Sort Movements
+let sorted = false;
+btnSort.addEventListener("click", (e) => {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
 });
